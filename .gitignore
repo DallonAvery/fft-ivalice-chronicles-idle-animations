@@ -1,0 +1,12 @@
+# Allow-list: this folder also holds game data, Sprite Toolkit files and FF16Tools,
+# none of which may be published. Only the mod's own sources are tracked.
+/*
+!/.gitignore
+!/README.md
+!/tools/
+!/docs/
+
+# generated
+__pycache__/
+*.pyc
+/docs/IdleAnimations_Manual_*.html

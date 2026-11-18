@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idle Animations Manual</title>
+<style>
+:root {
+  --bg: #fbfaf7; --surface: #ffffff; --text: #1d2026; --muted: #5b6270; --line: #e3e0d8;
+  --accent: #8a5a12; --accent-soft: #f6ecd9; --code-bg: #f1efe9; --ok: #2f7d4a; --warn: #9a5b00;
+  --fig-bg: #20242c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171c; --surface: #1c1f26; --text: #e6e3dc; --muted: #a2a8b4; --line: #2e323b;
+    --accent: #e0aa52; --accent-soft: #2c2519; --code-bg: #23262e; --ok: #6cc28a; --warn: #e3a54c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171c; --surface: #1c1f26; --text: #e6e3dc; --muted: #a2a8b4; --line: #2e323b;
+  --accent: #e0aa52; --accent-soft: #2c2519; --code-bg: #23262e; --ok: #6cc28a; --warn: #e3a54c;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.62 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.layout { display: flex; gap: 48px; max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+nav.toc {
+  position: sticky; top: 0; align-self: flex-start; width: 250px; flex: none;
+  max-height: 100vh; overflow-y: auto; padding: 40px 0 24px; font-size: 14px;
+}
+nav.toc .label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+nav.toc li { margin: 2px 0; }
+nav.toc a { color: var(--text); text-decoration: none; display: block; padding: 3px 8px; border-radius: 6px; }
+nav.toc a:hover { background: var(--accent-soft); }
+nav.toc ol ol { padding-left: 12px; font-size: 13px; }
+nav.toc ol ol a { color: var(--muted); }
+main { flex: 1; min-width: 0; max-width: 820px; padding: 40px 0 80px; }
+header.title { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 32px; }
+header.title .kicker { color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: .04em; }
+h1 { font-size: 36px; line-height: 1.15; margin: 6px 0 12px; letter-spacing: -.01em; }
+h2 { font-size: 26px; margin: 56px 0 12px; padding-top: 8px; letter-spacing: -.01em; }
+h3 { font-size: 19px; margin: 32px 0 8px; }
+h2 .num { color: var(--accent); margin-right: 10px; }
+p, li { max-width: 72ch; }
+a { color: var(--accent); }
+.meta { color: var(--muted); font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.meta b { color: var(--text); font-weight: 600; }
+code, kbd, pre { font-family: "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace; font-size: .88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; word-break: break-word; }
+pre { background: var(--code-bg); padding: 14px 16px; border-radius: 8px; overflow-x: auto; line-height: 1.5; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; }
+.callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+.callout.warn { border-color: var(--warn); }
+.callout.ok { border-color: var(--ok); }
+.callout p { margin: 4px 0; }
+.callout strong:first-child { display: block; margin-bottom: 2px; }
+.table-wrap { overflow-x: auto; margin: 16px 0 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; background: var(--code-bg); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+figure { margin: 24px 0; }
+figure .frame { background: var(--fig-bg); border-radius: 10px; padding: 16px; text-align: center; overflow-x: auto; }
+figure img { max-width: 100%; height: auto; image-rendering: pixelated; vertical-align: middle; }
+figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
+.steps { counter-reset: step; list-style: none; padding: 0; }
+.steps > li { counter-increment: step; position: relative; padding-left: 40px; margin: 14px 0; }
+.steps > li::before {
+  content: counter(step); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: var(--bg); font-weight: 700; font-size: 14px; display: grid; place-items: center;
+}
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.ok { color: var(--ok); }
+.pill.warn { color: var(--warn); }
+.diagram { width: 100%; height: auto; }
+.diagram text { font-family: "Segoe UI", system-ui, sans-serif; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0 24px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+.card h4 { margin: 0 0 6px; font-size: 16px; }
+.card p { margin: 0; font-size: 14.5px; color: var(--muted); }
+dl.glossary dt { font-weight: 600; margin-top: 10px; }
+dl.glossary dd { margin: 2px 0 0 0; color: var(--muted); }
+footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+@media (max-width: 1000px) {
+  .layout { display: block; }
+  nav.toc { position: static; width: auto; max-height: none; padding: 24px 0 0; border-bottom: 1px solid var(--line); }
+  main { padding-top: 24px; }
+  h1 { font-size: 30px; }
+}
+@media print {
+  :root:root:root {
+    --bg: #fff; --surface: #fff; --text: #111; --muted: #444; --line: #ccc; --code-bg: #f3f3f3;
+    --accent: #8a5a12; --accent-soft: #f7f1e6; --ok: #2f7d4a; --warn: #9a5b00; --fig-bg: #20242c;
+  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-size: 11pt; }
+  nav.toc { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  main { max-width: none; padding: 0; }
+  h2 { break-after: avoid; margin-top: 32px; }
+  h2.newpage { break-before: page; }
+  h3 { break-after: avoid; }
+  figure, .callout, .table-wrap, pre, .card { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+  <div class="label">Contents</div>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#how">1. How Idle Animations Work</a>
+      <ol>
+        <li><a href="#layers">Sheet, Frames, Animations</a></li>
+        <li><a href="#battle">In Battle</a></li>
+        <li><a href="#outside">Outside Battle</a></li>
+        <li><a href="#water">In Water</a></li>
+        <li><a href="#where">Where the Files Live</a></li>
+      </ol>
+    </li>
+    <li><a href="#change">2. What Has to Change</a>
+      <ol>
+        <li><a href="#change-still">Standing Still</a></li>
+        <li><a href="#change-breath">Breathing</a></li>
+        <li><a href="#change-room">Making Room for New Frames</a></li>
+        <li><a href="#change-type">Body Type, Not Character</a></li>
+      </ol>
+    </li>
+    <li><a href="#types">3. Body Types</a>
+      <ol>
+        <li><a href="#types-monsters">One Idle for Every Monster</a></li>
+        <li><a href="#types-table">Which Body Type a Sprite Uses</a></li>
+      </ol>
+    </li>
+    <li><a href="#versions">4. The Three Versions</a></li>
+    <li><a href="#made">5. How the Mod Was Made</a></li>
+    <li><a href="#changed">6. What Changed, File by File</a></li>
+    <li><a href="#install">7. How to Install</a></li>
+    <li><a href="#remove">8. How to Remove</a></li>
+    <li><a href="#status">9. Troubleshooting</a>
+      <ol>
+        <li><a href="#modes">Classic and Enhanced</a></li>
+        <li><a href="#compat">Compatibility with Other Mods</a></li>
+        <li><a href="#crash">Crash Investigation</a></li>
+      </ol>
+    </li>
+    <li><a href="#rebuild">10. Rebuilding the Mod</a></li>
+    <li><a href="#glossary">11. Glossary</a></li>
+    <li><a href="#credits">12. Credits</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="title" id="overview">
+  <div class="kicker">FINAL FANTASY TACTICS – The Ivalice Chronicles · Reloaded-II mod</div>
+  <h1>Idle Animations: Still &amp; Breathing</h1>
+  <div class="meta">
+    <span><b>Version</b> 1.2.0</span>
+    <span><b>Game modes</b> Classic and Enhanced</span>
+    <span><b>Requires</b> Reloaded-II + FFT Mod Loader (built against 1.7.5)</span>
+  </div>
+</header>
+<p>From the author:</p>
+<p>This mod has been created with the help of Claude Code and tested by me. As a new player, I haven't been able to extensively test the mod and check all the creatures, bosses, etc. I will get to them as I progress the story. If you'd like to help, send me your save file where you found bugs and I'll do my best to patch it.</p>
+<p>I've created this mod because I've never played the game before and always wanted to, but this one thing has always bugged me. I understand that those who have played FFT before are likely okay with how idle animaitons work. But to me, it never felt right, especially since the fact that in cutscenes characters are standing still. So, I created this mod for myself mostly. I've seen others asking around for this, so this is why I'm sharing it. I will keep updating the mod as new bugs are discovered. I know that the "breathing" idle animation is far from ideal, but it's basically all that can be done. You can't really create unique idle animations for different characters, because as you will learn from this manual, all humanoid creatures share the same 4-5 types with the same animation loop. So, you can realistically only change animation for a character type, which then changes it for all in-game characters that has this type. I'd personally stick with the "still" idle option and just treat the "breathing" one as experimental.</p>
+<h2>What This Mod Does</h2>
+<p>In battle, every unit in the original game constantly <em>walks in place</em> while it waits for its turn. This mod replaces that loop. Depending on the version you enable, units either stand perfectly still, as they already do in the game's story scenes, or stand and breathe: the body from the waist up, hands included, settles by one sprite pixel and rises again, while the legs and feet stay planted. Units standing in water behave the same way as on dry ground.</p>
+
+<figure>
+  <div class="frame"><img src="img/breathing_showcase.gif" alt="Knight, Dancer, Chocobo, Behemoth, Bomb and Dragon breathing in place"></div>
+  <figcaption>The breathing idle at normal speed, rendered from the mod's own files. From left: Knight, Dancer, Chocobo, Behemoth, Bomb, Dragon.</figcaption>
+</figure>
+
+<div class="cards">
+  <div class="card"><h4>Still (Humans)</h4><p>Human units stand still. Monsters, chocobos and bosses keep the game's own idle.</p></div>
+  <div class="card"><h4>Still (Everyone)</h4><p>Every unit stands still while idle, including monsters, chocobos and the two Altima forms. The recommended default.</p></div>
+  <div class="card"><h4>Breathing</h4><p>Humans, monsters and chocobos breathe. The Altima forms keep their original hovering idle.</p></div>
+</div>
+
+<div class="callout">
+  <strong>TLDR</strong>
+  <p>Copy <em>one</em> of the three mod folders into <code>Reloaded-II\Mods</code> and enable it for the game in Reloaded-II. See <a href="#install">How to Install</a> and <a href="#remove">How to Remove</a>. Enable only one of the three versions at a time.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="how" class="newpage"><span class="num">1</span>How Idle Animations Work</h2>
+
+<p>Ivalice Chronicles keeps the original PlayStation game's sprite and animation system underneath its new presentation. The files are renamed and packed differently, but their contents and logic are the same. That is why one small, careful change to a handful of data files is enough to change how every unit idles.</p>
+
+<h3 id="layers">Three Layers: Sheet, Frames, Animations</h3>
+
+<p>A unit on screen is built from three separate pieces of data:</p>
+
+<svg class="diagram" viewBox="0 0 800 210" role="img" aria-label="Sprite sheet feeds frame layout, which feeds animation sequence, which produces the unit on screen">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g style="color: var(--muted)" stroke="currentColor" stroke-width="2" fill="none">
+    <line x1="182" y1="80" x2="222" y2="80" marker-end="url(#arr)"/>
+    <line x1="402" y1="80" x2="442" y2="80" marker-end="url(#arr)"/>
+    <line x1="622" y1="80" x2="652" y2="80" marker-end="url(#arr)"/>
+  </g>
+  <g font-size="15" style="fill: var(--text)">
+    <rect x="10" y="20" width="170" height="120" rx="10" style="fill: var(--surface); stroke: var(--line)"/>
+    <text x="95" y="52" text-anchor="middle" font-weight="700">Sprite sheet</text>
+    <text x="95" y="76" text-anchor="middle" font-size="13" style="fill: var(--muted)">one picture per</text>
+    <text x="95" y="94" text-anchor="middle" font-size="13" style="fill: var(--muted)">character, holding all</text>
+    <text x="95" y="112" text-anchor="middle" font-size="13" style="fill: var(--muted)">its body parts</text>
+    <rect x="230" y="20" width="170" height="120" rx="10" style="fill: var(--surface); stroke: var(--line)"/>
+    <text x="315" y="52" text-anchor="middle" font-weight="700">Frames (SHP)</text>
+    <text x="315" y="76" text-anchor="middle" font-size="13" style="fill: var(--muted)">each pose = a list of</text>
+    <text x="315" y="94" text-anchor="middle" font-size="13" style="fill: var(--muted)">rectangular blocks cut</text>
+    <text x="315" y="112" text-anchor="middle" font-size="13" style="fill: var(--muted)">from the sheet</text>
+    <rect x="450" y="20" width="170" height="120" rx="10" style="fill: var(--surface); stroke: var(--line)"/>
+    <text x="535" y="52" text-anchor="middle" font-weight="700">Animations (SEQ)</text>
+    <text x="535" y="76" text-anchor="middle" font-size="13" style="fill: var(--muted)">numbered loops: show</text>
+    <text x="535" y="94" text-anchor="middle" font-size="13" style="fill: var(--muted)">frame N for D ticks,</text>
+    <text x="535" y="112" text-anchor="middle" font-size="13" style="fill: var(--muted)">then the next…</text>
+    <rect x="660" y="20" width="130" height="120" rx="10" style="fill: var(--accent-soft); stroke: var(--accent)"/>
+    <text x="725" y="74" text-anchor="middle" font-weight="700">Unit on</text>
+    <text x="725" y="94" text-anchor="middle" font-weight="700">screen</text>
+    <text x="95" y="172" text-anchor="middle" font-size="13" style="fill: var(--muted)">per character</text>
+    <text x="315" y="172" text-anchor="middle" font-size="13" style="fill: var(--muted)">shared by a body type</text>
+    <text x="535" y="172" text-anchor="middle" font-size="13" style="fill: var(--muted)">shared by a body type</text>
+    <text x="400" y="200" text-anchor="middle" font-size="13" style="fill: var(--accent)">This mod changes only the two shared layers. No sprite sheet is touched.</text>
+  </g>
+</svg>
+
+<ul>
+  <li><strong>Sprite sheet.</strong> One image per character (for example the male Knight) containing every body part and pose the character needs. The original sheets are 256×488 pixels with 16 colours. The Sprite Modding Toolkit exports them at double size (two PNG files per sheet).</li>
+  <li><strong>Frame layout (SHP file).</strong> Describes each <em>frame</em>, meaning each pose, as a list of rectangular blocks cut from the sheet. Each block has a source position on the sheet, a size from a fixed list (8×8 up to 56×56), a position on screen, and optional mirroring. One SHP file is shared by every character of the same body type, so all those sheets must use the same arrangement.</li>
+  <li><strong>Animation sequences (SEQ file).</strong> Up to 256 numbered animations. Each is a list of steps such as “show frame 11 for 6 ticks” (a tick is 1/60 of a second), plus a few commands, for example the marker that makes a loop repeat. Also shared by a body type.</li>
+</ul>
+
+<figure>
+  <div class="frame"><img src="img/sheet_blocks.png" alt="Top of the Knight sprite sheet with the front and back standing poses outlined"></div>
+  <figcaption>The top of the male Knight's sprite sheet (Toolkit HD export). The outlined 32×40 blocks are the standing poses used by frame 2 (facing the camera) and frame 8 (facing away). Each standing pose is a single block.</figcaption>
+</figure>
+
+<h3 id="battle">In Battle</h3>
+
+<p>When a unit is not doing anything, the game plays its <em>idle</em> animation. Units are drawn facing either toward the camera (“front”) or away from it (“back”); the other two directions are the same pictures mirrored. The idle comes in three speeds because Haste and Slow change how fast a waiting unit moves:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Animation</th><th>What it is</th><th>Original length</th></tr></thead>
+  <tbody>
+    <tr><td>0 – 5</td><td>Single still poses. Number 2 is the standing pose facing front; number 4 the standing pose facing back.</td><td>—</td></tr>
+    <tr><td><strong>6 / 7</strong></td><td><strong>Idle</strong>, front / back, normal speed</td><td>64 ticks (≈1.07 s)</td></tr>
+    <tr><td><strong>8 / 9</strong></td><td><strong>Idle</strong>, front / back, under Haste</td><td>32 ticks (≈0.53 s)</td></tr>
+    <tr><td><strong>10 / 11</strong></td><td><strong>Idle</strong>, front / back, under Slow</td><td>96 ticks (1.6 s)</td></tr>
+    <tr><td>24 / 25</td><td>Walking from tile to tile (movement)</td><td>28 ticks per cycle</td></tr>
+  </tbody>
+</table></div>
+
+<p>This numbering is the same in every unit animation file in the game, for humans, monsters, chocobos and bosses alike. In the original game the idle is literally a walk cycle: 8 steps cycling through 5 walking poses (frames 9 to 13 for the front).</p>
+
+<figure>
+  <div class="frame">
+    <img src="img/idle_original.gif" alt="Original idle animation: walking in place" style="margin-right:24px">
+    <img src="img/walk_frames.png" alt="The five walking poses used by the original idle">
+  </div>
+  <figcaption>Left: the original idle (animation 6) of the male Knight. Right: the five poses it cycles through: frames 9, 10, 11, 12 and 13.</figcaption>
+</figure>
+
+<div class="callout ok">
+  <strong>Moving is a separate animation</strong>
+  <p>Walking from tile to tile uses animations 24 and 25, not the idle. Changing the idle therefore does not make units slide across the map when they move.</p>
+</div>
+
+<h3 id="outside">Outside Battle</h3>
+
+<ul>
+  <li><strong>Menus</strong> (the formation screen before a battle, the party roster). These draw units with the same animation files as battle. During testing, units in the menus followed the mod in both Classic and Enhanced.</li>
+  <li><strong>Story scenes.</strong> In scenes played on the map with the game's own sprites (the dialogue scenes between battles), waiting units already stand still in the original game: the event script shows them on a standing pose rather than the battle idle. That is why <em>Still (Everyone)</em> is the recommended default: battles then look like the story scenes. An event script can still tell a unit to play other animations, such as walking somewhere, and those are unchanged.</li>
+  <li><strong>The remaster's extra tables.</strong> Ivalice Chronicles adds eight data tables, <code>nxd/charanimseq0.nxd</code> to <code>charanimseq7.nxd</code> (inside <code>0004.pac</code>), each holding a copy of about 25 animations for one body type, including the idle and the walk. Battle and menus do not take their idle from these tables, since they follow the mod without them. A test version that also changed the idle in these tables made the game show an <em>“Access is denied (-1593835515)”</em> message at the start of every player turn, so the remaster evidently checks or uses them for its turn display. The mod leaves them unchanged.</li>
+</ul>
+
+<h3 id="water">In Water</h3>
+<p>Units standing in shallow or deep water are drawn with only part of the body showing. The frame layout files of the human and chocobo body types therefore contain <em>two</em> lists of frames with the same numbers: the normal (“dry”) list and an in-water list in which every frame shows only the upper body. When a unit stands in water, the game plays the same animation, but takes each frame from the in-water list. The monster layout has no in-water list.</p>
+<p>This matters for any new frame: a breathing frame that exists only in the dry list would show whatever the in-water list happens to hold under that number. The first breathing test did exactly that: humans in water raised a hand, or showed only a floating head. The mod now writes an in-water breathing frame next to each dry one, built from the in-water standing pose, so the idle in water looks the same as on land.</p>
+
+<h3 id="where">Where the Files Live</h3>
+
+<p>Everything is inside the game's <code>.pac</code> archives, which can be listed and unpacked with Nenkai's FF16Tools. Both game modes keep their own archives, and all of the unit animation files are in <code>0002.pac</code>, in the folder <code>fftpack/unit/</code>:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Remaster file</th><th>Original PlayStation name</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td><code>battle_type1_seq.bin</code></td><td><code>TYPE1.SEQ</code></td><td>Animations, human body type 1</td></tr>
+    <tr><td><code>battle_type1_shp.bin</code></td><td><code>TYPE1.SHP</code></td><td>Frame layout, human body type 1</td></tr>
+    <tr><td><code>battle_*_spr.bin</code></td><td><code>*.SPR</code></td><td>Sprite sheets (one per character, not changed)</td></tr>
+  </tbody>
+</table></div>
+
+<p>The Classic and Enhanced copies of every file this mod changes were compared and are byte-for-byte identical, so one set of files works for both modes. A second copy of the same files is embedded in the legacy archive <code>system/ffto/fftpack.en.bin</code>; the FFT Mod Loader redirects those entries to the mod's files as well (its log shows “mapping file … (en)”). A search of every other archive (about 1 GB of unpacked data, plus both game executables) found no other copy of the idle animation besides the <code>charanimseq</code> tables.</p>
+
+<!-- ================================================================== -->
+<h2 id="change" class="newpage"><span class="num">2</span>What Has to Change</h2>
+
+<h3 id="change-still">To Stand Still</h3>
+<p>Only the animation files need to change. In animations 6 to 11, every step's frame number is replaced with the standing pose's frame. The number of steps and their delays stay exactly as they were, so the file keeps the same size and every other animation stays at the same position in the file. This is the safest kind of edit possible: the game reads the file exactly as before and simply gets a different picture.</p>
+
+<h3 id="change-breath">To Breathe</h3>
+<p>A breathing pose does not exist in the game. There are two ways to get one:</p>
+<ol>
+  <li><strong>Draw new art.</strong> A new pose would have to be painted into every character's sprite sheet (several hundred sheets, plus their HD versions), and the sheets have almost no free space. Not practical.</li>
+  <li><strong>Build it from pixels that already exist.</strong> This is what the mod does. Because a frame is just a list of blocks cut from the sheet, a new frame can reuse the standing pose's pixels and arrange them differently.</li>
+</ol>
+
+<p>The breathing frame takes the standing pose, cuts it along a body line, and draws everything above the line <strong>one pixel lower</strong> (two pixels on the HD sprites). The body from about the waist up settles slightly while the legs and feet stay planted. The idle loop then alternates between the normal standing pose and this settled pose:</p>
+
+<figure>
+  <div class="frame"><img src="img/breath_split.png" alt="Standing pose and breathing pose side by side with the cut line marked"></div>
+  <figcaption>Left: standing pose (frame 2). Right: breathing pose. Everything above the dashed line is one sprite pixel lower. For humans the cut is 32 pixels below the top of the 40-pixel pose, just below the hands.</figcaption>
+</figure>
+
+<p>A cut can only fall on the sprite sheet's 8-pixel grid, because blocks are cut from the sheet in multiples of 8 pixels. For a human that leaves three possible heights: 16, 24 or 32 pixels below the top of the pose. An earlier version cut at 24 pixels, across the chest, which split the arms: the shoulders moved but the hands stayed, and the wrists looked broken on every breath. The cut at 32 pixels is the first one below the hands, so the arms and hands move together with the body and only the lower legs and feet (the bottom 8 pixels) stay planted.</p>
+
+<figure>
+  <div class="frame"><img src="img/water_frames.png" alt="Standing and breathing poses on land and in water"></div>
+  <figcaption>The four frames behind a human's breathing idle, from the mod's files. Left pair: standing and breathing on land. Right pair: the same two poses from the in-water list, used while the unit stands in water.</figcaption>
+</figure>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Idle speed</th><th>Standing</th><th>Breathing</th><th>Back to standing</th><th>Total</th></tr></thead>
+  <tbody>
+    <tr><td>Normal (6 / 7)</td><td>36 ticks</td><td>26 ticks</td><td>2 ticks</td><td>64 ticks</td></tr>
+    <tr><td>Haste (8 / 9)</td><td>18 ticks</td><td>13 ticks</td><td>1 tick</td><td>32 ticks</td></tr>
+    <tr><td>Slow (10 / 11)</td><td>54 ticks</td><td>39 ticks</td><td>3 ticks</td><td>96 ticks</td></tr>
+  </tbody>
+</table></div>
+<p>Each loop keeps its original 8 steps and total length, so Haste and Slow still speed up and slow down a waiting unit, and anything in the game that waits for an idle loop to finish sees the same timing as before.</p>
+
+<h3 id="change-room">Making Room for New Frames</h3>
+<p>Each new pose needs a frame number of its own in the body type's frame layout file, one for the front and one for the back, in both the dry and the in-water list. There is an important restriction: in each layout file, frames numbered above a certain boundary read their blocks from the <em>lower half</em> of the sprite sheet, and the standing poses are at the very top. A breathing frame must therefore get a <em>low</em> frame number, so it cannot simply be added to the end of the list.</p>
+
+<div class="callout warn">
+  <strong>The files must not grow</strong>
+  <p>The game loads these files into memory areas of a fixed size. An earlier version added the monster breathing frames to the end of the monster layout file, 28 bytes past its original end. The game never read those bytes, so on every breath monsters were drawn from empty data and blinked out and back in. Every file in the mod now has exactly its original size, and the build refuses to finish otherwise.</p>
+</div>
+
+<p>Within that limit the mod uses three techniques:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Method</th><th>How it works</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Duplicate frame number</strong></td><td>Some frame numbers hold a byte-for-byte copy of another frame. Every animation that used the copy is pointed at the original instead, which changes nothing on screen, and the copy's number is then free for a breathing pose.</td><td>Human type 1 (60 / 63, copies of 49 / 53), human type 2 (62 / 63, copies of 11 / 16)</td></tr>
+    <tr><td><strong>Unused frame number</strong></td><td>A frame that no animation uses is rewritten.</td><td>Chocobo (59 / 60), monsters (13 / 19)</td></tr>
+    <tr><td><strong>Freed space</strong></td><td>When the new pose needs more blocks than the old frame had room for, its data goes into space freed elsewhere in the same list: a run of frames that are exact copies of earlier frames is pointed at those earlier copies, which again changes nothing on screen, and the bytes they occupied are reused.</td><td>Monsters (both poses), human type 2 (in-water poses)</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="change-type">It Works per Body Type, Not per Character</h3>
+<p>Because frame layouts and animations are shared, a change applies to every character with that body type at once. That is what makes this mod possible with so few files, but it also means a single character cannot have its own idle with these files alone. Every Knight, Squire, Dancer and so on with the same body type gets the same new idle, drawn with its own sprite sheet's pixels.</p>
+
+<!-- ================================================================== -->
+<h2 id="types" class="newpage"><span class="num">3</span>Body Types</h2>
+
+<p>Every unit belongs to a body type: a pairing of one frame layout file with one or more animation files. Different body types build their poses very differently, which decides how a breathing pose can be made for them.</p>
+
+<figure>
+  <div class="frame"><img src="img/body_types.png" alt="Standing poses of a human, a chocobo, a monster and Altima's second form, with each block outlined"></div>
+  <figcaption>The standing pose of each kind of body, with every block outlined. From left: a human is one 32×40 block; a chocobo is six small blocks; a monster is one 48×48 block; Altima's second form is eight large blocks.</figcaption>
+</figure>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Body type</th><th>Animation files</th><th>Frame layout</th><th>Standing pose</th><th>Breathing frames</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Human, type 1</strong></td><td><code>type1</code>, <code>type4</code></td><td><code>type1_shp</code></td><td>Frames 2 / 8: one 32×40 block</td><td>60 / 63 (copies of 49 / 53, freed)</td></tr>
+    <tr><td><strong>Human, type 2</strong></td><td><code>type2</code>, <code>type3</code></td><td><code>type2_shp</code></td><td>Frames 2 / 8: one 32×40 block</td><td>62 / 63 (copies of 11 / 16, freed)</td></tr>
+    <tr><td><strong>Chocobo</strong></td><td><code>cyoko</code></td><td><code>cyoko_shp</code></td><td>Frames 2 / 4: six small blocks</td><td>59 / 60 (unused)</td></tr>
+    <tr><td><strong>Monster</strong></td><td><code>mon</code>, <code>ruka</code></td><td><code>mon_shp</code></td><td>Frames 2 / 4: one 48×48 block</td><td>13 / 19 (unused, data in freed space)</td></tr>
+    <tr><td><strong>Altima, 1st form</strong></td><td><code>arute</code></td><td><code>arute_shp</code></td><td>Frames 1 / 10: three blocks</td><td>Not needed (see below)</td></tr>
+    <tr><td><strong>Altima, 2nd form</strong></td><td><code>kanzen</code></td><td><code>kanzen_shp</code></td><td>Frames 1 / 10: eight blocks</td><td>Not needed (see below)</td></tr>
+    <tr><td>Other</td><td><code>other</code></td><td><code>other_shp</code></td><td>Small objects</td><td>Not changed by the mod</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Humans</h3>
+<p>Humans come in two frame layouts, type 1 and type 2. Each layout serves two animation sets: type 4 animations reuse the type 1 layout, and type 3 animations reuse the type 2 layout. (An earlier version assumed the opposite pairing. The type 3 animations use frame numbers up to 198, which exist only in the type 2 layout, and a unit with type 3 animations, Albin, raised both hands on every breath, because frame 32 of the type 2 layout is a level-up pose.) The standing poses are a single 32×40 block in the same place on the sheet for both layouts; walking and attacking poses add separate blocks for the arms. The breathing frame cuts the standing block into a 32×32 upper body and a 32×8 lower body. Some monsters are built like humans and appear to use the human layouts: Goblins, Mindflayers (Squids) and Skeletons did not render correctly with the monster layout, so they should breathe along with the humans.</p>
+
+<h3>Chocobos</h3>
+<p>A chocobo's standing pose is already made of six small blocks (head, body, tail and legs). No cutting is needed: the blocks above the legs move down one pixel and the legs stay. The chocobo layout had two unused frames with room for exactly six blocks each.</p>
+
+<h3>Monsters</h3>
+<p>Most monsters share one layout in which every pose is a single 48×48 block. Its breathing frame cuts that block into three 48×16 strips and lowers the top two, so the lower third (legs, base or tail) stays planted. How well that suits a creature depends on its shape; see <a href="#types-monsters">One Idle for Every Monster</a> below. These sprite sheets were confirmed to use the monster layout: Bomb, Coeurl, Ghost, Ahriman, Cockatrice, Pig, Treant, Minotaur, Malboro, Behemoth, Dragon, Tiamat, Apanda, Elidibus, Demon and Automaton. Breathing previews were checked for eleven of them: Bomb, Behemoth, Dragon, Coeurl, Ghost, Ahriman, Cockatrice, Treant, Minotaur, Malboro and Demon. The <code>ruka</code> animation set shares this layout and gets the same treatment.</p>
+
+<h3 id="types-monsters">One Idle for Every Monster</h3>
+<p>All of these monster families share <em>one</em> animation file and <em>one</em> frame layout. There is a single “monster idle”, and every monster plays it with its own sprite sheet. Whatever the mod does to that idle happens to every monster at once; a Bomb cannot get a different idle from a Behemoth through these files.</p>
+<p>In the original game the monster idle, like the human one, is the movement cycle slowed down: the same five poses (frames 2, 8, 1, 9 and 5) that animation 24 plays at twice the speed when a monster moves. What those poses look like depends entirely on the sprite sheet, so the same idle reads very differently from creature to creature:</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Kind of creature</th><th>Families</th><th>Their original idle</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Floating, no legs</strong></td><td>Bomb, Ghost, Ahriman</td><td>Bomb pulses; Ghost sways; Ahriman flaps its wings</td></tr>
+    <tr><td><strong>No limbs, rooted</strong></td><td>Malboro, Treant</td><td>Malboro's mouth and tentacles move; Treant's leaves sway</td></tr>
+    <tr><td><strong>Wings flap during the idle</strong></td><td>Ahriman, Cockatrice, Tiamat</td><td>Wings spread on some poses</td></tr>
+    <tr><td>Walk on legs</td><td>Coeurl, Pig, Minotaur, Behemoth, Dragon, Apanda, Elidibus, Demon, Automaton</td><td>Walk in place, like humans</td></tr>
+  </tbody>
+</table></div>
+
+<p>The breathing pose lowers everything above a fixed line in the 48×48 picture. On four-legged monsters such as the Behemoth and the Dragon this reads as joints and legs shifting slightly while standing, which works well. On creatures that sit low in the picture the line can cross the body itself. The clearest case is the Bomb, where it runs through the eyes, so each breath shows a one-pixel seam across the face. The Bomb also loses its original pulsing flame.</p>
+
+<figure>
+  <div class="frame"><img src="img/bomb_seam.png" alt="Bomb: the five original idle poses, then the mod's breathing pose with the cut lines marked"></div>
+  <figcaption>Bomb. The first five pictures are the original idle poses (frames 2, 8, 1, 9 and 5); the last is the mod's breathing pose. Everything above the pink line drops one pixel; on the Bomb that line runs through the eyes.</figcaption>
+</figure>
+
+<p>Alternatives were compared: moving only the top third of the picture, and bobbing the whole monster by one pixel. Each fixes some creatures and makes others worse. Since one rule has to cover every monster, the mod keeps the breathing pose, which suits the walking monsters best. The seam on the Bomb, and the lost pulse and sway of the Bomb, Ghost, Malboro and Treant, are a known limitation (see <a href="#status">section 9</a>). If you prefer the original monster idle, use <em>Still (Humans)</em>, which leaves every monster, chocobo and boss file untouched.</p>
+
+<h3 id="types-table">Which Body Type a Sprite Uses</h3>
+<p>The game does not decide this per sprite sheet file. Each sprite has a 4-byte record in a table inside the game executable: frame layout, animation set, a flying flag and a height. The table has 170 records and is found at offset <code>0x672300</code> in <code>FFT_enhanced.exe</code> (the same data is in <code>FFT_classic.exe</code>). The record order appears to follow the Sprite Toolkit's sprite order. That is how the records below were matched to creatures, and it fits everything else observed (Goblins and Skeletons rendering with the human layout, the flying flag on the Ahriman and Cockatrice). A few examples:</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Sprite</th><th>Layout</th><th>Animation set</th><th>Flying</th></tr></thead>
+  <tbody>
+    <tr><td>Chocobo</td><td>Chocobo</td><td>Chocobo</td><td>No</td></tr>
+    <tr><td>Goblin, Skeleton</td><td>Human type 1</td><td>Human type 1</td><td>No</td></tr>
+    <tr><td>Squid (Mindflayer)</td><td>Human type 2</td><td>Human type 2</td><td>No</td></tr>
+    <tr><td>Bomb, Ghost, Treant, Malboro, Behemoth, Dragon …</td><td>Monster</td><td>Monster</td><td>No</td></tr>
+    <tr><td>Ahriman, Cockatrice</td><td>Monster</td><td>Monster</td><td>Yes</td></tr>
+    <tr><td>Elidibus (and, it appears, the Lucavi)</td><td>Monster</td><td><code>ruka</code></td><td>No</td></tr>
+    <tr><td>Altima, 1st / 2nd form</td><td>Altima 1 / Altima 2</td><td>Altima 1 / Altima 2</td><td>No</td></tr>
+  </tbody>
+</table></div>
+<p>This table is part of the program, not a data file, so the FFT Mod Loader cannot replace it. Giving individual creatures their own idle (for example, the original idle for the Bomb while the Behemoth breathes) would need a Reloaded-II <em>code</em> mod that changes those records in memory at startup, plus an extra animation set for them to point to. All eight animation-set slots are in use, so that also means working out how the game loads its animation files. That is a much larger project and is not part of this mod.</p>
+
+<h3>Bosses</h3>
+<p>The two Altima forms have their own layouts with large multi-block poses. Their original idle is not a walk: it cycles through nearly identical poses that make the body hover and the wings move. That already looks alive, so the <em>Breathing</em> and <em>Still (Humans)</em> versions leave their files out entirely and the game's own idle plays. <em>Still (Everyone)</em> freezes them on their standing pose.</p>
+
+<!-- ================================================================== -->
+<h2 id="versions" class="newpage"><span class="num">4</span>The Three Versions</h2>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Mod name in Reloaded-II</th><th>Folder</th><th>Humans</th><th>Chocobos, monsters</th><th>Altima forms</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Idle Animations: Still (Humans)</strong></td><td><code>fftivc.animation.stillhumans</code></td><td>Still</td><td>Original idle</td><td>Original idle</td></tr>
+    <tr><td><strong>Idle Animations: Still (Everyone)</strong></td><td><code>fftivc.animation.standstillidle</code></td><td>Still</td><td>Still</td><td>Still</td></tr>
+    <tr><td><strong>Idle Animations: Breathing</strong></td><td><code>fftivc.animation.breathingidleall</code></td><td>Breathe</td><td>Breathe</td><td>Original idle</td></tr>
+  </tbody>
+</table></div>
+
+<p><em>Still (Everyone)</em> is the recommended default: it matches the way units already wait in the game's story scenes, and it changes only animation files, never a frame layout. <em>Still (Humans)</em> is for players who like the monsters' original motion (the Bomb's pulse, the Ghost's sway). <em>Breathing</em> adds the most life but is the largest change.</p>
+
+<div class="callout">
+  <strong>Upgrading from version 1.1</strong>
+  <p>Version 1.1 had a <em>Breathing (Humans)</em> version in the folder <code>fftivc.animation.breathingidle</code>. It has been retired: delete that folder from Reloaded-II's <code>Mods</code> folder. <em>Stand Still</em> is now called <em>Still (Everyone)</em> and <em>Breathing (All Units)</em> is now <em>Breathing</em>; their folders are unchanged.</p>
+</div>
+
+<div class="callout warn">
+  <strong>Enable only one version</strong>
+  <p>All three replace the same game files. With more than one enabled, whichever loads last wins, and you can end up with a mix.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="made" class="newpage"><span class="num">5</span>How the Mod Was Made</h2>
+
+<h3>Tools</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Tool</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><td>Reloaded-II and the FFT Mod Loader (Nenkai)</td><td>Loading the changed files into the game without touching the game folder</td></tr>
+    <tr><td>FF16Tools CLI 1.13 (Nenkai)</td><td>Listing and unpacking the game's <code>.pac</code> archives, and reading the remaster's <code>.nxd</code> tables</td></tr>
+    <tr><td>FFT Ivalice Chronicles Sprite Modding Toolkit</td><td>Exported sprite sheets, used to draw previews of every frame</td></tr>
+    <tr><td>Python 3 with Pillow</td><td>Small scripts written for this mod: decoding, previewing, patching and checking the files</td></tr>
+    <tr><td>Claude Code (Anthropic)</td><td>AI coding assistant: researched the file formats, wrote the decoding, build, verification and diagnostic scripts, rendered the previews and wrote this manual, working with the author, who tested every version in the game</td></tr>
+    <tr><td>ShishiSpriteEditor source (FFTPatcher) and the FFT Hacktics wiki</td><td>Documentation of the SEQ and SHP file formats from the original game's modding community</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Process</h3>
+<ol class="steps">
+  <li><strong>Find the files.</strong> Every Enhanced archive was listed with FF16Tools. The unit animation files were found in <code>0002.pac</code>, under <code>fftpack/unit/</code>, renamed from their PlayStation names (for example <code>TYPE1.SEQ</code> became <code>battle_type1_seq.bin</code>). The other archives hold maps, text, sound, UI, movies and fonts; the only other animation data found was the <code>charanimseq</code> tables described in section 1.
+    <pre><code>FF16Tools.CLI list-files -i "&lt;game&gt;\data\enhanced\0002.pac" -g fft
+FF16Tools.CLI unpack -i "&lt;game&gt;\data\enhanced\0002.pac" -f fftpack/unit/battle_type1_seq.bin -o unpacked -g fft</code></pre>
+  </li>
+  <li><strong>Decode the animations.</strong> A decoder based on ShishiSpriteEditor's format description lists every animation as frames and delays. It showed the same layout in every body type: still poses at 0 to 5, the idle at 6 to 11, movement at 24 and 25.</li>
+  <li><strong>Look at the frames.</strong> A renderer reads a frame's block list from the layout file and assembles it from the Toolkit's exported sprite sheet. This confirmed visually which frames are standing poses and which are walking poses, and later showed every new breathing frame before it went into the game.</li>
+  <li><strong>Check the idle is separate from walking.</strong> Animations 24 and 25 (movement) use their own steps and timing, so changing 6 to 11 cannot affect how units move.</li>
+  <li><strong>Find room for new frames.</strong> For each layout, the frames used by all of its animation files were collected, and unused or byte-identical frames below the sheet boundary were looked for, in both the dry and the in-water list (section 2).</li>
+  <li><strong>Build the files.</strong> One build script produces all three versions from the unpacked originals. It refuses to build if something does not look exactly as expected: a frame chosen as free is in use, two frames treated as copies are not identical, an idle animation has a different shape than the others, or a file would change size.</li>
+  <li><strong>Verify.</strong> A separate check compares every built file with the original. It confirms that only animations 6 to 11 changed (plus the swaps between identical frames), that only the intended frames changed in each layout file, and that every file has its original size. A renderer then draws each animation set's idle from the built files, on land and in water, on its real layout.</li>
+  <li><strong>Test in the game.</strong> <em>Still (Everyone)</em> and <em>Breathing</em> were played in Enhanced through story battles and scenes, and the first battle was also tested in Classic. In-game reports drove most of the fixes in this version: the chest cut splitting the wrists, the raised hands in water, Albin raising both hands, and the blinking monsters.</li>
+</ol>
+
+<!-- ================================================================== -->
+<h2 id="changed" class="newpage"><span class="num">6</span>What Changed, File by File</h2>
+
+<p>All files go in <code>FFTIVC\data\combined\fftpack\unit\</code> inside the mod folder. The <code>combined</code> folder tells the mod loader to use them for both Classic and Enhanced.</p>
+
+<p>Every file keeps its original size. The animation files change only animations 6 to 11, apart from the swaps between identical frames listed below.</p>
+
+<h3>Still (Humans)</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>File</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td><code>battle_type1_seq.bin</code> … <code>battle_type4_seq.bin</code></td><td>Idle 6 to 11 show the standing pose (frame 2 front, 8 back)</td></tr>
+    <tr><td><em>All other unit files</em></td><td>Not included, so monsters, chocobos and bosses keep their original idle</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Still (Everyone)</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>File</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td><code>battle_type1_seq.bin</code> … <code>battle_type4_seq.bin</code></td><td>Idle 6 to 11 show the standing pose (frame 2 front, 8 back)</td></tr>
+    <tr><td><code>battle_cyoko_seq.bin</code>, <code>battle_mon_seq.bin</code>, <code>battle_ruka_seq.bin</code></td><td>Idle 6 to 11 show the standing pose (frame 2 front, 4 back)</td></tr>
+    <tr><td><code>battle_arute_seq.bin</code>, <code>battle_kanzen_seq.bin</code></td><td>Idle 6 to 11 show the standing pose (frame 1 front, 10 back)</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Breathing</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>File</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td><code>battle_type1_shp.bin</code></td><td>Frames 60 and 63 rewritten as the front and back breathing poses, in both the dry and the in-water list</td></tr>
+    <tr><td><code>battle_type1_seq.bin</code>, <code>battle_type4_seq.bin</code></td><td>Idle 6 to 11 alternate frame 2 / 60 (front) and 8 / 63 (back). Animations that used 60 / 63 now use their identical copies 49 / 53 (type 1: 85, 89, 233; type 4: 19, 21, 23, 50, 112).</td></tr>
+    <tr><td><code>battle_type2_shp.bin</code></td><td>Frames 62 and 63 rewritten as the breathing poses; the in-water versions are stored in freed space</td></tr>
+    <tr><td><code>battle_type2_seq.bin</code>, <code>battle_type3_seq.bin</code></td><td>Idle 6 to 11 alternate frame 2 / 62 and 8 / 63. Animations that used 62 / 63 now use 11 / 16 (type 2: 85, 89, 233; type 3: 18 to 23).</td></tr>
+    <tr><td><code>battle_cyoko_shp.bin</code></td><td>Frames 59 and 60 rewritten as the chocobo breathing poses, dry and in water</td></tr>
+    <tr><td><code>battle_cyoko_seq.bin</code></td><td>Idle alternates frame 2 / 59 and 4 / 60</td></tr>
+    <tr><td><code>battle_mon_shp.bin</code></td><td>Frames 13 and 19 become the breathing poses, stored in space freed from duplicate frames</td></tr>
+    <tr><td><code>battle_mon_seq.bin</code>, <code>battle_ruka_seq.bin</code></td><td>Idle alternates frame 2 / 13 and 4 / 19</td></tr>
+    <tr><td><em>Altima files</em></td><td>Not included, so the original idle plays</td></tr>
+  </tbody>
+</table></div>
+
+<p>One small, deliberate difference comes from the frame swaps. Frames 62 / 63 and 11 / 16 of the type 2 layout are identical on land, but not in water: there, 62 / 63 showed only a head (a unit in deep water) while 11 / 16 show the upper body. After the swap, the few deep-water animations that used 62 / 63 show the upper body instead of the lone head. All other swapped frames are identical in both lists.</p>
+
+<h3>Not Changed by Any Version</h3>
+<ul>
+  <li>Sprite sheets, palettes, portraits and HD textures.</li>
+  <li>Every animation other than the idle (attacks, spells, movement, reactions), apart from the frame swaps between identical frames listed above.</li>
+  <li>The remaster's <code>charanimseq</code> tables (see <a href="#outside">section 1</a>).</li>
+  <li>The game executables.</li>
+  <li>The game folder itself. The mod loader applies the files when the game starts.</li>
+</ul>
+
+<!-- ================================================================== -->
+<h2 id="install" class="newpage"><span class="num">7</span>How to Install</h2>
+
+<h3>Requirements</h3>
+<ul>
+  <li><strong>Reloaded-II</strong>, with the game's executables added as applications: <code>FFT_enhanced.exe</code> and/or <code>FFT_classic.exe</code>.</li>
+  <li><strong>FINAL FANTASY TACTICS – The Ivalice Chronicles Mod Loader</strong> by Nenkai, installed in Reloaded-II. The mod was built against version 1.7.5.</li>
+</ul>
+
+<h3>Steps</h3>
+<ol class="steps">
+  <li>Choose <strong>one</strong> version: <code>fftivc.animation.stillhumans</code>, <code>fftivc.animation.standstillidle</code> or <code>fftivc.animation.breathingidleall</code> (see <a href="#versions">section 4</a>).</li>
+  <li>Copy that whole folder into Reloaded-II's <code>Mods</code> folder, for example <code>D:\Reloaded-II\Mods\fftivc.animation.breathingidleall</code>. Keep the folder name and everything inside it as it is.</li>
+  <li>Open Reloaded-II and select the game (for example <code>fft_enhanced.exe</code>).</li>
+  <li>Tick the mod, which appears as <strong>Idle Animations: …</strong>. Make sure the FFT Mod Loader is ticked as well; Reloaded-II asks for it if it is missing.</li>
+  <li>If you play both modes, select the other executable (<code>fft_classic.exe</code>) and tick the same mod there too. Reloaded-II treats the two modes as separate applications.</li>
+  <li>Start the game <strong>through Reloaded-II</strong>. Started any other way, the game runs without mods.</li>
+</ol>
+
+<h3>Switching Versions</h3>
+<p>Untick the version you have, tick the one you want, in each game mode you play, and restart the game.</p>
+
+<!-- ================================================================== -->
+<h2 id="remove"><span class="num">8</span>How to Remove</h2>
+<ol class="steps">
+  <li><strong>To turn it off:</strong> untick the mod in Reloaded-II for each game mode and restart the game.</li>
+  <li><strong>To remove it completely:</strong> also delete its folder from Reloaded-II's <code>Mods</code> folder.</li>
+</ol>
+<p>Nothing else needs cleaning up. The mod never modifies the game's own files: the mod loader supplies the changed files while the game runs, so once the mod is off, the game uses its original animations again. Save files are not affected, since the mod changes only how units are drawn.</p>
+
+<!-- ================================================================== -->
+<h2 id="status" class="newpage"><span class="num">9</span>Troubleshooting</h2>
+
+<div class="callout warn">
+  <strong>Random crashes</strong>
+  <p>The game may occasionally crash, for example during a story scene or after a long time in a menu. I'm not sure this is related to the mod: the cause has not been found yet (see <a href="#crash">Crash Investigation</a>). If it happens to you, please let me know what was on screen and which version you had enabled.</p>
+</div>
+
+<h3 id="modes">Classic and Enhanced</h3>
+<p>The mod works in both versions of the game, Classic and Enhanced. Both use byte-identical animation files, so one set of files serves both (see <a href="#where">section 1</a>). Reloaded-II treats the two modes as separate applications, so enable the mod for each executable you play (see <a href="#install">How to Install</a>).</p>
+
+<h3 id="compat">Compatibility with Other Mods</h3>
+<p>I haven't tested whether this mod is compatible with any other mods. Any mod that replaces the same animation or frame layout files (the <code>battle_*_seq.bin</code> and <code>battle_*_shp.bin</code> files listed in <a href="#changed">section 6</a>) will conflict with this one, and whichever loads last wins. If you run into compatibility issues, leave a comment and I'll see what I can do.</p>
+
+<h3>Testing Status</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Part</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Still (Everyone)</td><td><span class="pill ok">Tested in game</span> Story battles and scenes in Enhanced, first battle in Classic, menus</td></tr>
+    <tr><td>Still (Humans)</td><td><span class="pill ok">Built and verified</span> The same human files as Still (Everyone); the other units use the game's own files</td></tr>
+    <tr><td>Human breathing</td><td><span class="pill ok">Tested in game</span> Several jobs and story characters (Albin included), on land and in water</td></tr>
+    <tr><td>Monster breathing</td><td><span class="pill ok">Tested in game</span> Floating and four-legged monsters, no blinking</td></tr>
+    <tr><td>Chocobo breathing</td><td><span class="pill warn">Checked in previews only</span></td></tr>
+    <tr><td>Altima original idle in <em>Breathing</em></td><td><span class="pill warn">Not yet seen in game</span></td></tr>
+    <tr><td>Long play sessions</td><td><span class="pill warn">Under observation</span> See <a href="#crash">Crash Investigation</a></td></tr>
+  </tbody>
+</table></div>
+
+<h3>Known Limits</h3>
+<ul>
+  <li><strong>Per body type only.</strong> Every character of a body type gets the same idle (see section 2). Which body type a sprite uses is set in the game executable, out of reach of a file mod (see <a href="#types-table">section 3</a>).</li>
+  <li><strong>One idle for all monsters.</strong> In <em>Breathing</em> the breathing suits walking monsters, but floating and limbless ones lose their original motion: the Bomb's pulse, the Ghost's sway, the Malboro's tentacles and the Treant's leaves. On the Bomb a one-pixel seam crosses the face on each breath (see <a href="#types-monsters">section 3</a>).</li>
+  <li><strong>Built from existing pixels.</strong> The breathing pose can only rearrange what is on the sprite sheet. Richer idles with arm or weight movement would need new art for every sheet.</li>
+  <li><strong>Scripted movement.</strong> Story scenes that tell a unit to walk still show walking, as they should.</li>
+  <li><strong>The <code>charanimseq</code> tables are unchanged.</strong> Changing them caused errors (section 1). If a screen still shows walking in place, it probably reads those tables.</li>
+  <li><strong>Deep water, type 2 layout.</strong> A few deep-water animations show the upper body where they used to show only the head (section 6).</li>
+</ul>
+
+<h3>If Something Looks Wrong</h3>
+<ul>
+  <li><strong>A monster or chocobo looks broken or flickers:</strong> switch to <em>Still (Everyone)</em> or <em>Still (Humans)</em>, which do not change any frame layout.</li>
+  <li><strong>A unit raises its hands or strikes another pose while waiting:</strong> its animation set may be paired with a different layout than the mod expects. Note the character and job.</li>
+  <li><strong>A short action of a human unit looks different:</strong> a few actions now use the original copies of two frames. They should be identical on land, but note which animation it was.</li>
+  <li><strong>Units still walk in place:</strong> check that the mod is ticked for the mode you are playing and that the game was started through Reloaded-II.</li>
+</ul>
+
+<h3 id="crash">Crash Investigation</h3>
+<p>During testing in Enhanced, the game sometimes crashed with a Direct3D “invalid call” message asking to check the D3D debug layer: usually during a story scene, once after about 20 minutes idle in the encyclopedia menu. What was found:</p>
+<ul>
+  <li><strong>The mod loader alone does not crash.</strong> A control mod that supplies the game's <em>original</em> animation files through the same loader ran without crashes, while versions with changed idle animations (still and breathing alike) crashed in some sessions. The crashes therefore appear linked to the idle edits, even though a still idle only changes frame numbers inside animations 6 to 11.</li>
+  <li><strong>Not a memory leak.</strong> Memory, handle and video-memory use were recorded over whole sessions: they level off in the same way with and without the mod, including right up to a crash.</li>
+  <li><strong>Not the <code>charanimseq</code> tables.</strong> Changing them caused the “Access is denied” turn message and did not stop the crash, so they are left alone.</li>
+  <li><strong>No crash with the debug layer on.</strong> With the Direct3D 12 debug layer forced on, every test session ran to the end, the still and breathing versions included. The only errors it reported (an uninitialised render target when a scene loads) also appear with the original files. A crash that disappears under the debug layer often points to timing rather than bad data.</li>
+  <li><strong>Earlier bad data has been removed.</strong> Version 1.1 shipped a monster layout file 28 bytes larger than the original, which the game did not fully load. Version 1.2 keeps every file at its original size.</li>
+</ul>
+<p>The cause is not confirmed yet. If you get this crash, note what was on screen and which version was enabled, and check whether it also happens with the mod switched off.</p>
+
+<!-- ================================================================== -->
+<h2 id="rebuild" class="newpage"><span class="num">10</span>Rebuilding the Mod</h2>
+<p>This section is for modders who want to rebuild or adjust the mod. The scripts live in the project's <code>tools</code> folder. They need Python 3 with Pillow, the unpacked unit files in <code>unpacked\fftpack\unit</code>, and, for previews, the Sprite Toolkit's exported sheets in <code>extracted_sprites</code>.</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Script</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>build_mods.py</code></td><td>Builds all three versions from the unpacked originals. Timing, cut lines, frame slots and frame swaps are set at the top of the file.</td></tr>
+    <tr><td><code>verify_mods.py</code></td><td>Compares every built file with the original and lists exactly what changed.</td></tr>
+    <tr><td><code>seq_decode.py</code></td><td>Lists the animations in an SEQ file as frames, delays and commands.</td></tr>
+    <tr><td><code>shp_render.py</code></td><td>Renders frames and animations from an SHP and SEQ file onto an exported sprite sheet.</td></tr>
+    <tr><td><code>breath.py</code></td><td>Builds a breathing frame from any standing pose.</td></tr>
+    <tr><td><code>breath_preview_multi.py</code></td><td>Previews breathing frames on several sprite sheets at once.</td></tr>
+    <tr><td><code>render_built_idle.py</code></td><td>Draws each animation set's idle from the built files, on its layout, on land and in water.</td></tr>
+    <tr><td><code>nxd_anim.py</code>, <code>nxd_idle.py</code></td><td>Read the remaster's <code>charanimseq</code> tables and, for experiments, patch them.</td></tr>
+    <tr><td><code>find_anim_data.py</code>, <code>find_sprite_attrs.py</code></td><td>Search unpacked archives and the executables for animation data and the per-sprite body-type table.</td></tr>
+    <tr><td><code>memlog.ps1</code>, <code>debugcapture.ps1</code>, <code>debug_summary.py</code></td><td>Crash diagnostics: record the game's memory use, capture Direct3D debug-layer output, summarise a capture.</td></tr>
+    <tr><td><code>make_manual_figures.py</code>, <code>build_manual.py</code></td><td>Regenerate the figures and this manual.</td></tr>
+  </tbody>
+</table></div>
+
+<pre><code>python tools\build_mods.py unpacked\fftpack\unit mods
+python tools\verify_mods.py unpacked\fftpack\unit mods
+python tools\render_built_idle.py mods\fftivc.animation.breathingidleall\FFTIVC\data\combined\fftpack\unit preview\built_idle.png</code></pre>
+
+<!-- ================================================================== -->
+<h2 id="glossary"><span class="num">11</span>Glossary</h2>
+<dl class="glossary">
+  <dt>Tick</dt><dd>One sixtieth of a second, the unit of every delay in the animation files.</dd>
+  <dt>Sprite sheet (SPR)</dt><dd>The image holding all body parts and poses of one character.</dd>
+  <dt>Frame</dt><dd>One complete pose, assembled from blocks of the sprite sheet.</dd>
+  <dt>Block (tile)</dt><dd>A rectangle cut from the sprite sheet, in one of 16 fixed sizes from 8×8 to 56×56 pixels.</dd>
+  <dt>Frame layout (SHP)</dt><dd>The file listing every frame of a body type as blocks.</dd>
+  <dt>Animation sequence (SEQ)</dt><dd>The file listing every animation of a body type as steps of “frame for so many ticks”.</dd>
+  <dt>Body type</dt><dd>A frame layout plus the animation files that use it, shared by many characters.</dd>
+  <dt>Idle</dt><dd>The looping animation a unit plays while it waits: animations 6 to 11.</dd>
+  <dt>In-water list</dt><dd>The second list of frames in a frame layout, showing only the upper body, used while a unit stands in water.</dd>
+  <dt>.pac archive</dt><dd>The remaster's packed data files, in the game's <code>data\classic</code> and <code>data\enhanced</code> folders.</dd>
+  <dt>Combined folder</dt><dd>The mod folder location (<code>FFTIVC\data\combined</code>) whose files the mod loader uses for both game modes.</dd>
+</dl>
+
+<!-- ================================================================== -->
+<h2 id="credits"><span class="num">12</span>Credits</h2>
+<ul>
+  <li><strong>Nenkai</strong>: FF16Tools and the FINAL FANTASY TACTICS – The Ivalice Chronicles Mod Loader.</li>
+  <li><strong>The Reloaded-II project</strong>: the mod manager.</li>
+  <li><strong>Glain, melonhead and the FFTPatcher contributors</strong>: ShishiSpriteEditor, whose source documents the SEQ and SHP formats.</li>
+  <li><strong>The Final Fantasy Hacktics community</strong>: years of documentation of the original game's files.</li>
+  <li><strong>The author of the FFT Ivalice Chronicles Sprite Modding Toolkit</strong>: the sprite sheet exports used for every preview.</li>
+</ul>
+<p>FINAL FANTASY TACTICS – The Ivalice Chronicles is © SQUARE ENIX. This mod contains no sprite art. It contains only edited animation and frame-layout data that rearranges the game's own pixels.</p>
+
+<footer>Idle Animations: Still &amp; Breathing · Manual for version 1.2.0</footer>
+</main>
+</div>
+</body>
+</html>
